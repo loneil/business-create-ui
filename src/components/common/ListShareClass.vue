@@ -57,7 +57,7 @@
               {{ formatParValue(row.item) }}
             </td>
             <td class="color-md-text">
-              {{ row.item.currency }}
+              {{ formatCurrency(row.item) }}
             </td>
             <td class="color-md-text">
               {{ row.item.hasRightsOrRestrictions ? 'Yes' : 'No' }}
@@ -163,7 +163,7 @@
             <td class="color-md-text text-right">
               {{ formatParValue(row.item) }}
             </td>
-            <td>{{ row.item.currency }}</td>
+            <td>{{ formatCurrency(row.item) }}</td>
             <td>{{ seriesItem.hasRightsOrRestrictions ? 'Yes' : 'No' }}</td>
 
             <!-- Share Series Edit Btn -->
@@ -272,6 +272,18 @@ export default class ListShareClass extends Vue {
     ]
     if (!this.isSummary) headers.push({ text: '', value: 'actions' })
     return headers
+  }
+
+  /**
+   * Returns a currency formatted for display in the shares table.
+   * For grandfathered "OTHER" currency (migrated from COLIN), shows the
+   * free-text `currencyAdditional` value, falling back to "Other" if blank.
+   */
+  formatCurrency (item: any): string {
+    if (item.currency === 'OTHER') {
+      return item.currencyAdditional || 'Other'
+    }
+    return item.currency
   }
 
   /** Returns a par value formatted for display in the shares table. */

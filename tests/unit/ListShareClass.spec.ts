@@ -237,3 +237,34 @@ describe('formatParValue()', () => {
     })
   })
 })
+
+describe('formatCurrency()', () => {
+  let wrapper
+
+  beforeAll(() => {
+    wrapper = shallowMount(ListShareClass)
+  })
+
+  afterAll(() => {
+    wrapper.destroy()
+  })
+
+  it('returns the currency code for standard ISO currencies', () => {
+    expect(wrapper.vm.formatCurrency({ currency: 'CAD' })).toBe('CAD')
+    expect(wrapper.vm.formatCurrency({ currency: 'USD' })).toBe('USD')
+    expect(wrapper.vm.formatCurrency({ currency: 'EUR' })).toBe('EUR')
+  })
+
+  it('returns the free-text value for grandfathered OTHER currency', () => {
+    expect(wrapper.vm.formatCurrency({ currency: 'OTHER', currencyAdditional: 'Bitcoin' }))
+      .toBe('Bitcoin')
+    expect(wrapper.vm.formatCurrency({ currency: 'OTHER', currencyAdditional: 'Swiss Francs' }))
+      .toBe('Swiss Francs')
+  })
+
+  it('falls back to "Other" when OTHER currency has no free-text value', () => {
+    expect(wrapper.vm.formatCurrency({ currency: 'OTHER', currencyAdditional: '' })).toBe('Other')
+    expect(wrapper.vm.formatCurrency({ currency: 'OTHER', currencyAdditional: null })).toBe('Other')
+    expect(wrapper.vm.formatCurrency({ currency: 'OTHER' })).toBe('Other')
+  })
+})

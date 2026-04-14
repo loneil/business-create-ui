@@ -64,6 +64,22 @@
           icon="mdi-sitemap"
           label="Share Structure"
         />
+        <div
+          v-if="hasOtherCurrency"
+          id="other-currency-notice"
+          class="d-flex align-start pa-5"
+        >
+          <v-icon
+            class="mr-2"
+            color="primary"
+          >
+            mdi-information-outline
+          </v-icon>
+          <p class="ma-0">
+            <strong>Important:</strong> Existing share classes may continue to use &ldquo;Other&rdquo;
+            but this option is not supported for new share classes.
+          </p>
+        </div>
         <ListShareClass
           :isSummary="true"
           :shareClasses="getCreateShareStructureStep.shareClasses"
@@ -354,6 +370,19 @@ export default class AmalgamationReviewConfirm extends Vue {
   get showErrorSummary (): boolean {
     if (this.isAmalgamationFilingRegular) return (!this.getCreateShareStructureStep.valid)
     return false
+  }
+
+  /**
+   * Whether any share class or series in the filing carries the legacy "OTHER"
+   * currency type (migrated from COLIN). Used to surface a notice on the
+   * Review page that "Other" is grandfathered but not supported for new shares.
+   */
+  get hasOtherCurrency (): boolean {
+    const classes = this.getCreateShareStructureStep.shareClasses || []
+    return classes.some(c =>
+      c.currency === 'OTHER' ||
+      (c.series || []).some(s => s.currency === 'OTHER')
+    )
   }
 
   /** The entity description,  */
