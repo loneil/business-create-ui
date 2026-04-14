@@ -64,22 +64,17 @@
           icon="mdi-sitemap"
           label="Share Structure"
         />
-        <div
+        <MessageBox
           v-if="hasOtherCurrency"
           id="other-currency-notice"
-          class="d-flex align-start pa-5"
+          color="gold"
+          class="mx-5 mt-5"
         >
-          <v-icon
-            class="mr-2"
-            color="primary"
-          >
-            mdi-information-outline
-          </v-icon>
           <p class="ma-0">
             <strong>Important:</strong> Existing share classes may continue to use &ldquo;Other&rdquo;
             but this option is not supported for new share classes.
           </p>
-        </div>
+        </MessageBox>
         <ListShareClass
           :isSummary="true"
           :shareClasses="getCreateShareStructureStep.shareClasses"
@@ -285,6 +280,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Action, Getter } from 'pinia-class'
 import { useStore } from '@/store/store'
+import { OTHER_CURRENCY } from '@/constants'
 import { AuthorizedActions } from '@/enums'
 import { ContactPointIF, CertifyIF, EffectiveDateTimeIF, ShareStructureIF,
   CourtOrderStepIF, DocumentDeliveryIF } from '@/interfaces'
@@ -298,6 +294,7 @@ import AmalgamationStatement from '@/components/Amalgamation/AmalgamationStateme
 import EffectiveDateTime from '@/components/common/EffectiveDateTime.vue'
 import ListPeopleAndRoles from '@/components/common/ListPeopleAndRoles.vue'
 import ListShareClass from '@/components/common/ListShareClass.vue'
+import MessageBox from '@/components/common/MessageBox.vue'
 import SummaryDefineCompany from '@/components/common/SummaryDefineCompany.vue'
 import StaffPayment from '@/components/common/StaffPayment.vue'
 import { CorpTypeCd, GetCorpFullDescription } from '@bcrs-shared-components/corp-type-module'
@@ -317,6 +314,7 @@ import { IsAuthorized } from '@/utils'
     ListPeopleAndRoles,
     ListShareClass,
     ListResolutions,
+    MessageBox,
     SummaryDefineCompany,
     StaffPayment
   }
@@ -380,8 +378,8 @@ export default class AmalgamationReviewConfirm extends Vue {
   get hasOtherCurrency (): boolean {
     const classes = this.getCreateShareStructureStep.shareClasses || []
     return classes.some(c =>
-      c.currency === 'OTHER' ||
-      (c.series || []).some(s => s.currency === 'OTHER')
+      c.currency === OTHER_CURRENCY ||
+      (c.series || []).some(s => s.currency === OTHER_CURRENCY)
     )
   }
 

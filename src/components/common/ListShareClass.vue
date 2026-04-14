@@ -163,7 +163,7 @@
             <td class="color-md-text text-right">
               {{ formatParValue(row.item) }}
             </td>
-            <td>{{ formatCurrency(row.item) }}</td>
+            <td>{{ formatCurrency(seriesItem.currency ? seriesItem : row.item) }}</td>
             <td>{{ seriesItem.hasRightsOrRestrictions ? 'Yes' : 'No' }}</td>
 
             <!-- Share Series Edit Btn -->
@@ -241,6 +241,7 @@
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import { RouteNames } from '@/enums'
 import { arrayMoveMutable } from 'array-move'
+import { OTHER_CURRENCY } from '@/constants'
 import { FormatDecimal } from '@/utils'
 
 @Component({})
@@ -280,7 +281,7 @@ export default class ListShareClass extends Vue {
    * free-text `currencyAdditional` value, falling back to "Other" if blank.
    */
   formatCurrency (item: any): string {
-    if (item.currency === 'OTHER') {
+    if (item.currency === OTHER_CURRENCY) {
       return item.currencyAdditional || 'Other'
     }
     return item.currency
