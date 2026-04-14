@@ -64,17 +64,19 @@
           icon="mdi-sitemap"
           label="Share Structure"
         />
-        <MessageBox
+        <div
           v-if="hasOtherCurrency"
           id="other-currency-notice"
-          color="gold"
-          class="mx-5 mt-5"
+          class="d-flex align-start px-5 pt-5 pb-3"
         >
+          <v-icon class="mr-2">
+            mdi-information-outline
+          </v-icon>
           <p class="ma-0">
             <strong>Important:</strong> Existing share classes may continue to use &ldquo;Other&rdquo;
             but this option is not supported for new share classes.
           </p>
-        </MessageBox>
+        </div>
         <ListShareClass
           :isSummary="true"
           :shareClasses="getCreateShareStructureStep.shareClasses"
@@ -294,7 +296,6 @@ import AmalgamationStatement from '@/components/Amalgamation/AmalgamationStateme
 import EffectiveDateTime from '@/components/common/EffectiveDateTime.vue'
 import ListPeopleAndRoles from '@/components/common/ListPeopleAndRoles.vue'
 import ListShareClass from '@/components/common/ListShareClass.vue'
-import MessageBox from '@/components/common/MessageBox.vue'
 import SummaryDefineCompany from '@/components/common/SummaryDefineCompany.vue'
 import StaffPayment from '@/components/common/StaffPayment.vue'
 import { CorpTypeCd, GetCorpFullDescription } from '@bcrs-shared-components/corp-type-module'
@@ -314,7 +315,6 @@ import { IsAuthorized } from '@/utils'
     ListPeopleAndRoles,
     ListShareClass,
     ListResolutions,
-    MessageBox,
     SummaryDefineCompany,
     StaffPayment
   }
