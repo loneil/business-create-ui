@@ -149,7 +149,17 @@
     >
       <header>
         <h2>Certify</h2>
-        <p class="mt-4">
+        <p
+          v-if="isBaseCompany"
+          class="mt-4"
+        >
+          Certify your authorization to complete and submit this application. The name of the person submitting this
+          filing will be displayed in the history of filings for this {{ getEntityDescription }}.
+        </p>
+        <p
+          v-else
+          class="mt-4"
+        >
           Confirm the legal name of the person authorized to complete and submit this application.
         </p>
       </header>
@@ -164,6 +174,8 @@
           :disableEdit="false"
           :invalidSection="isCertifyInvalid"
           :isStaff="IsAuthorized(AuthorizedActions.THIRD_PARTY_CERTIFY_STMT)"
+          :showLegalName="!isBaseCompany"
+          :authorizationMode="certify"
         />
       </v-card>
     </section>
@@ -275,6 +287,7 @@ export default class ContinuationInReviewConfirm extends Vue {
   @Getter(useStore) getFilingStatus!: FilingStatus
   @Getter(useStore) getUserEmail!: string
   @Getter(useStore) getValidateSteps!: boolean
+  @Getter(useStore) isBaseCompany!: boolean
 
   @Action(useStore) setCertifyState!: (x: CertifyIF) => void
   @Action(useStore) setCourtOrderFileNumber!: (x: string) => void
@@ -314,6 +327,9 @@ export default class ContinuationInReviewConfirm extends Vue {
 
   /** Is true when the certify conditions are not met. */
   get isCertifyInvalid (): boolean {
+    if (this.isBaseCompany) {
+      return this.getValidateSteps && !this.getCertifyState.valid
+    }
     return this.getValidateSteps && !(this.getCertifyState.certifiedBy && this.getCertifyState.valid)
   }
 

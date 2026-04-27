@@ -36,6 +36,7 @@ export default class FilingTemplateMixin extends Mixins(AmalgamationMixin, DateM
   @Getter(useStore) getBusinessLegalName!: string
   @Getter(useStore) getBusinessLegalType!: CorpTypeCd
   @Getter(useStore) getBusinessStartDate!: string
+  @Getter(useStore) getCertifiedBy!: string | undefined
   @Getter(useStore) getCertifyState!: CertifyIF
   @Getter(useStore) getCompletingParty!: CompletingPartyIF
   @Getter(useStore) getContinuationInAuthorizationProof!: AuthorizationProofIF
@@ -73,6 +74,7 @@ export default class FilingTemplateMixin extends Mixins(AmalgamationMixin, DateM
   @Getter(useStore) getTempId!: string
   @Getter(useStore) getTransactionalFolioNumber!: string
   @Getter(useStore) isContinuationInAuthorization!: boolean
+  @Getter(useStore) isBaseCompany!: boolean
   @Getter(useStore) isEntityCoop!: boolean
   @Getter(useStore) isEntityFirm!: boolean
   @Getter(useStore) isEntitySoleProp!: boolean
@@ -139,11 +141,13 @@ export default class FilingTemplateMixin extends Mixins(AmalgamationMixin, DateM
     const filing: AmalgamationFilingIF = {
       header: {
         name: FilingTypes.AMALGAMATION_APPLICATION,
-        certifiedBy: this.getCertifyState.certifiedBy,
         date: this.getCurrentDate,
         filingId: this.getFilingId,
         folioNumber: this.getFolioNumber || undefined,
-        isFutureEffective: this.getEffectiveDateTime.isFutureEffective
+        isFutureEffective: this.getEffectiveDateTime.isFutureEffective,
+        ...(this.isBaseCompany
+          ? { authorizationReceived: this.getCertifyState.valid }
+          : { certifiedBy: this.getCertifyState.certifiedBy })
       },
       business: {
         legalType: this.getEntityType,
@@ -364,11 +368,13 @@ export default class FilingTemplateMixin extends Mixins(AmalgamationMixin, DateM
     const filing: ContinuationInFilingIF = {
       header: {
         name: FilingTypes.CONTINUATION_IN,
-        certifiedBy: this.getCertifyState.certifiedBy || undefined, // remove for authorization
         date: this.getCurrentDate,
         filingId: this.getFilingId,
         folioNumber: this.getFolioNumber || undefined,
-        isFutureEffective: this.getEffectiveDateTime.isFutureEffective
+        isFutureEffective: this.getEffectiveDateTime.isFutureEffective,
+        ...(this.isBaseCompany
+          ? { authorizationReceived: this.getCertifyState.valid }
+          : { certifiedBy: this.getCertifyState.certifiedBy })
       },
       business: {
         identifier: this.getTempId,
@@ -901,11 +907,13 @@ export default class FilingTemplateMixin extends Mixins(AmalgamationMixin, DateM
     const filing: RestorationFilingIF = {
       header: {
         name: FilingTypes.RESTORATION,
-        certifiedBy: this.getCertifyState.certifiedBy,
         date: this.getCurrentDate,
         filingId: this.getFilingId,
         folioNumber: this.getFolioNumber || undefined, // default FN; may be overwritten by staff BCOL FN
-        isFutureEffective: false
+        isFutureEffective: false,
+        ...(this.isBaseCompany
+          ? { authorizationReceived: this.getCertifyState.valid }
+          : { certifiedBy: this.getCertifyState.certifiedBy })
       },
       business: {
         legalType: this.getEntityType,
