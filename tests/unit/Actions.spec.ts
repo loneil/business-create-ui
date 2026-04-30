@@ -18,10 +18,15 @@ import { CourtOrderStepIF, DefineCompanyIF, EffectiveDateTimeIF, IncorporationAg
 import { ShareClassIF } from '@bcrs-shared-components/interfaces'
 import { setAuthRole } from '../set-auth-role'
 import { AxiosInstance as axios } from '@/utils'
+import * as FeatureFlags from '@/utils/feature-flag-utils'
 
 const vuetify = new Vuetify({})
 setActivePinia(createPinia())
 const store = useStore()
+vi.mock('@/utils/feature-flags', () => {
+  // we just care about this one function
+  return { GetFeatureFlag: vi.fn() }
+})
 
 // mock services function
 const mockUpdateFiling = vi.spyOn((LegalServices as any), 'updateFiling').mockResolvedValue({})
@@ -90,7 +95,13 @@ describe('Actions component - Incorporation Application', () => {
   it('Enables File and Pay button when certify from is valid', async () => {
     store.stateModel.certifyState = {
       valid: true,
-      certifiedBy: 'Some certifier'
+      certifiedBy: undefined
+    }
+    store.stateModel.tombstone.userFirstname = 'Some'
+    store.stateModel.tombstone.userLastname = 'Person'
+    store.stateModel.confirmCompletionState = {
+      confirmed: true,
+      completedBy: 'Some person'
     }
     store.stateModel.entityType = CorpTypeCd.BENEFIT_COMPANY
     store.stateModel.nameRequest.legalType = CorpTypeCd.BENEFIT_COMPANY
@@ -236,7 +247,13 @@ describe('Actions component - NR Validation', () => {
     } as TombstoneIF
     store.stateModel.certifyState = {
       valid: true,
-      certifiedBy: 'Some certifier'
+      certifiedBy: undefined
+    }
+    store.stateModel.tombstone.userFirstname = 'Some'
+    store.stateModel.tombstone.userLastname = 'Person'
+    store.stateModel.confirmCompletionState = {
+      confirmed: true,
+      completedBy: 'Some person'
     }
     store.stateModel.entityType = CorpTypeCd.BENEFIT_COMPANY
     store.stateModel.defineCompanyStep = { valid: true } as DefineCompanyIF
@@ -291,6 +308,7 @@ describe('Actions component - Filing Functionality', () => {
   const filing = {
     header: {
       name: 'incorporationApplication',
+      authorizationReceived: false, // certified checkbox will be unchecked
       certifiedBy: 'Certified By',
       date: '2020/01/29',
       effectiveDate: formattedEffectiveDate,
@@ -468,6 +486,10 @@ describe('Actions component - Filing Functionality', () => {
   }
 
   beforeEach(() => {
+    vi.spyOn(FeatureFlags, 'GetFeatureFlag').mockImplementation(flag => {
+      if (flag === 'enable-new-feature') return 'incorporationApplication-completingParty'
+      return null
+    })
     // mock the window.location.assign function
     delete window.location
     window.location = { assign: vi.fn() } as any
@@ -493,7 +515,16 @@ describe('Actions component - Filing Functionality', () => {
       folioNumber: '123456',
       authorizedActions: []
     } as TombstoneIF
-    store.stateModel.certifyState.certifiedBy = filing.header.certifiedBy
+    store.stateModel.certifyState = {
+      valid: false,
+      certifiedBy: undefined
+    }
+    store.stateModel.tombstone.userFirstname = 'Certified'
+    store.stateModel.tombstone.userLastname = 'By'
+    store.stateModel.confirmCompletionState = {
+      confirmed: false,
+      completedBy: 'Certified By'
+    }
     store.stateModel.businessContact = {
       email: filing.incorporationApplication.contactPoint.email,
       phone: filing.incorporationApplication.contactPoint.phone,
@@ -675,7 +706,13 @@ describe('Actions component - Conditionally disabled File and Pay button', () =>
   beforeAll(() => {
     store.stateModel.certifyState = {
       valid: true,
-      certifiedBy: 'Some certifier'
+      certifiedBy: undefined
+    }
+    store.stateModel.tombstone.userFirstname = 'Some'
+    store.stateModel.tombstone.userLastname = 'Person'
+    store.stateModel.confirmCompletionState = {
+      confirmed: true,
+      completedBy: 'Some person'
     }
     store.stateModel.entityType = CorpTypeCd.BENEFIT_COMPANY
     store.stateModel.nameRequest.legalType = CorpTypeCd.BENEFIT_COMPANY
